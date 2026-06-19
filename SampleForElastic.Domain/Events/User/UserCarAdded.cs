@@ -1,4 +1,5 @@
 using SampleForElastic.Domain.Base;
+using System;
 
 namespace SampleForElastic.Domain.Events.User
 {
@@ -6,7 +7,6 @@ namespace SampleForElastic.Domain.Events.User
     {
         public UserCarAdded(Guid userId, Guid carId, string name, string code, string color)
         {
-            Id = Guid.NewGuid();
             UserId = userId;
             CarId = carId;
             Name = name;
@@ -14,10 +14,10 @@ namespace SampleForElastic.Domain.Events.User
             Color = color;
         }
 
-        public Guid UserId { get; set; }
-        public Guid CarId { get; set; }
-        public string Name { get; set; }
-        public string Code { get; set; }
-        public string Color { get; set; }
+        public Guid UserId { get; }
+        public Guid CarId { get; }
+        public string Name { get; }
+        public string Code { get; }
+        public string Color { get; }
     }
 }

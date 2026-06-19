@@ -1,5 +1,6 @@
 using SampleForElastic.Domain.Base;
 using SampleForElastic.Domain.Enums;
+using System;
 
 namespace SampleForElastic.Domain.Events.User
 {
@@ -7,7 +8,6 @@ namespace SampleForElastic.Domain.Events.User
     {
         public UserUpdated(Guid userId, string username, DateOnly birthDate, string about, ExistanceState state)
         {
-            Id = Guid.NewGuid();
             UserId = userId;
             Username = username;
             BirthDate = birthDate;
@@ -15,10 +15,10 @@ namespace SampleForElastic.Domain.Events.User
             State = state;
         }
 
-        public Guid UserId { get; set; }
-        public string Username { get; set; }
-        public DateOnly BirthDate { get; set; }
-        public string About { get; set; }
-        public ExistanceState State { get; set; }
+        public Guid UserId { get; }
+        public string Username { get; }
+        public DateOnly BirthDate { get; }
+        public string About { get; }
+        public ExistanceState State { get; }
     }
 }

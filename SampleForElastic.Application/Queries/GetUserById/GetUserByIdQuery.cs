@@ -1,9 +1,10 @@
 using MediatR;
-using SampleForElastic.Application.Contracts;
+using Mokeb.Application.Queries.GetUserById;
+using System;
 
 namespace SampleForElastic.Application.Queries.GetUserById
 {
-    public class GetUserByIdQuery : IRequest<UserSearchModel?>
+    public class GetUserByIdQuery : IRequest<GetUserByIdQueryResponse>
     {
         public Guid UserId { get; set; }
 

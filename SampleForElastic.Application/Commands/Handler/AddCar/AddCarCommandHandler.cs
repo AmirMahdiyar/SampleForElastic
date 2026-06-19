@@ -1,8 +1,9 @@
 using MediatR;
 using SampleForElastic.Application.Commands.Contracts;
 using SampleForElastic.Application.Contracts;
-using SampleForElastic.Domain.Models.UserAggregate;
-using SampleForElastic.Domain.Models.ValueObjects;
+using System;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace SampleForElastic.Application.Commands.Handler.AddCar
 {
@@ -21,16 +22,12 @@ namespace SampleForElastic.Application.Commands.Handler.AddCar
         {
             request.Validate();
 
-            var user = await _userWriteRepository.GetByIdAsync(request.UserId, cancellationToken);
-            if (user == null)
-                throw new KeyNotFoundException($"User with ID {request.UserId} was not found.");
+            var user = await request.LoadUser(_userWriteRepository, cancellationToken);
+            var car = request.ToCar();
 
-            var carIdentity = CarIdentity.Create(request.Name, request.Code, request.Color);
-            var car = new Car(carIdentity, request.UserId);
-
-            user.AddCar(car);
-
-            await _unitOfWork.Commit(cancellationToken);
+            await user
+                .AddCarToAggregate(car)
+                .Commit(_unitOfWork, cancellationToken);
 
             return car.Id;
         }

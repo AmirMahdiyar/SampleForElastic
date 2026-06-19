@@ -1,10 +1,9 @@
 using MediatR;
-using SampleForElastic.Application.Contracts;
-using System.Collections.Generic;
+using Mokeb.Application.Queries.SearchUsers;
 
 namespace SampleForElastic.Application.Queries.SearchUsers
 {
-    public class SearchUsersQuery : IRequest<IEnumerable<UserSearchModel>>
+    public class SearchUsersQuery : IRequest<SearchUsersQueryResponse>
     {
         public string SearchTerm { get; set; }
 

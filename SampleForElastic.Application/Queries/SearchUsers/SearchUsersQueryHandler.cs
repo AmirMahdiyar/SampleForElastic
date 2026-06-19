@@ -1,12 +1,13 @@
 using MediatR;
+using Mokeb.Application.Queries.SearchUsers;
 using SampleForElastic.Application.Contracts;
-using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
 namespace SampleForElastic.Application.Queries.SearchUsers
 {
-    public class SearchUsersQueryHandler : IRequestHandler<SearchUsersQuery, IEnumerable<UserSearchModel>>
+    public class SearchUsersQueryHandler : IRequestHandler<SearchUsersQuery, SearchUsersQueryResponse>
     {
         private readonly IUserReadRepository _userReadRepository;
 
@@ -15,14 +16,15 @@ namespace SampleForElastic.Application.Queries.SearchUsers
             _userReadRepository = userReadRepository;
         }
 
-        public async Task<IEnumerable<UserSearchModel>> Handle(SearchUsersQuery request, CancellationToken cancellationToken)
+        public async Task<SearchUsersQueryResponse> Handle(SearchUsersQuery request, CancellationToken cancellationToken)
         {
             if (string.IsNullOrWhiteSpace(request.SearchTerm))
             {
-                return Array.Empty<UserSearchModel>();
+                return new SearchUsersQueryResponse();
             }
 
-            return await _userReadRepository.SearchAsync(request.SearchTerm, cancellationToken);
+            var users = await _userReadRepository.SearchAsync(request.SearchTerm, cancellationToken);
+            return new SearchUsersQueryResponse { Users = users.ToList() };
         }
     }
 }

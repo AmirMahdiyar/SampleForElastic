@@ -1,14 +1,17 @@
 using SampleForElastic.Domain.Base;
 using SampleForElastic.Domain.Events.User;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace SampleForElastic.Domain.Models.UserAggregate
 {
-    public class User : BaseEntity<Guid>
+    public class User : AggregateRoot<Guid>
     {
         private readonly List<Car> _cars = new();
-        
+
         private User() { }
-        
+
         public User(string username, DateOnly birthDate, string about)
         {
             CheckAbout(about);
@@ -19,29 +22,28 @@ namespace SampleForElastic.Domain.Models.UserAggregate
             BirthDate = birthDate;
             About = about;
 
-            AddEvent(new UserCreated(Id, BirthDate, about, DateTime.Now, State));
+            AddEvent(new UserCreated(Id, Username, BirthDate, About, CreatedAt, State));
         }
-        
+
         public string Username { get; private set; }
         public DateOnly BirthDate { get; private set; }
         public string About { get; private set; }
-        public DateTime CreatedAt { get; private set; } = DateTime.Now;
+        public DateTime CreatedAt { get; private set; } = DateTime.UtcNow;
 
         public IEnumerable<Car> Cars => _cars.AsReadOnly();
 
         public static User Create(string username, DateOnly birthDate, DateTime createdAt, string about)
                         => new User(username, birthDate, about);
 
-        #region Methods
         public void AddCar(Car car)
         {
             if (_cars.Any(x => x.Id == car.Id))
-                throw new InvalidOperationException("Car already exists under this user aggregate.");
-            
+                throw new InvalidOperationException();
+
             _cars.Add(car);
             AddEvent(new UserCarAdded(Id, car.Id, car.Identity.Name, car.Identity.Code, car.Identity.Color));
         }
-        
+
         public void BulkAddCar(IEnumerable<Car> cars)
         {
             foreach (var car in cars)
@@ -49,13 +51,13 @@ namespace SampleForElastic.Domain.Models.UserAggregate
                 AddCar(car);
             }
         }
-        
+
         public void RemoveCar(Car car)
         {
             var carInList = _cars.FirstOrDefault(x => x.Id == car.Id);
             if (carInList == null)
-                throw new InvalidOperationException("Car not found in this user aggregate.");
-                
+                throw new InvalidOperationException();
+
             carInList.Delete();
             AddEvent(new UserCarRemoved(Id, car.Id));
         }
@@ -73,20 +75,17 @@ namespace SampleForElastic.Domain.Models.UserAggregate
             Username = username;
             AddEvent(new UserUpdated(Id, Username, BirthDate, About, State));
         }
-        #endregion
 
-        #region Validations
         public void CheckAbout(string about)
         {
             if (string.IsNullOrEmpty(about))
-                throw new ArgumentException("About information cannot be null or empty.");
+                throw new ArgumentException();
         }
-        
+
         public void CheckUsername(string username)
         {
             if (string.IsNullOrEmpty(username))
-                throw new ArgumentException("Username cannot be null or empty.");
+                throw new ArgumentException();
         }
-        #endregion
     }
 }

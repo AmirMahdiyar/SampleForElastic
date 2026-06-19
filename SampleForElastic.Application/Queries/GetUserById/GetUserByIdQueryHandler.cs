@@ -1,9 +1,11 @@
 using MediatR;
+using Mokeb.Application.Queries.GetUserById;
 using SampleForElastic.Application.Contracts;
+using SampleForElastic.Application.Exceptions;
 
 namespace SampleForElastic.Application.Queries.GetUserById
 {
-    public class GetUserByIdQueryHandler : IRequestHandler<GetUserByIdQuery, UserSearchModel?>
+    public class GetUserByIdQueryHandler : IRequestHandler<GetUserByIdQuery, GetUserByIdQueryResponse>
     {
         private readonly IUserReadRepository _userReadRepository;
 
@@ -12,9 +14,24 @@ namespace SampleForElastic.Application.Queries.GetUserById
             _userReadRepository = userReadRepository;
         }
 
-        public async Task<UserSearchModel?> Handle(GetUserByIdQuery request, CancellationToken cancellationToken)
+        public async Task<GetUserByIdQueryResponse> Handle(GetUserByIdQuery request, CancellationToken cancellationToken)
         {
-            return await _userReadRepository.GetByIdAsync(request.UserId, cancellationToken);
+            UserSearchModel? user = await GetUser(request, cancellationToken);
+            return new GetUserByIdQueryResponse { User = user };
+        }
+
+
+
+
+        private async Task<UserSearchModel?> GetUser(GetUserByIdQuery request, CancellationToken cancellationToken)
+        {
+            var user = await _userReadRepository.GetByIdAsync(request.UserId, cancellationToken);
+            if (user == null)
+            {
+                throw new UserNotFoundInElasticsearchException(request.UserId);
+            }
+
+            return user;
         }
     }
 }

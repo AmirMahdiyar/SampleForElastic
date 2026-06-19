@@ -1,8 +1,8 @@
-﻿using SampleForElastic.Domain.Enums;
+using SampleForElastic.Domain.Enums;
 
 namespace SampleForElastic.Domain.Base
 {
-    public class BaseEntity<TId> : DomainEventBase<EventBase>
+    public abstract class BaseEntity<TId>
     {
         public TId Id { get; protected set; }
         public ExistanceState State { get; protected set; } = ExistanceState.Active;

@@ -1,6 +1,8 @@
 using MediatR;
 using SampleForElastic.Application.Commands.Contracts;
 using SampleForElastic.Application.Contracts;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace SampleForElastic.Application.Commands.Handler.UpdateUser
 {
@@ -19,15 +21,11 @@ namespace SampleForElastic.Application.Commands.Handler.UpdateUser
         {
             request.Validate();
 
-            var user = await _userWriteRepository.GetByIdAsync(request.UserId, cancellationToken);
-            if (user == null)
-                throw new KeyNotFoundException($"User with ID {request.UserId} was not found.");
-
-            user.UpdateUsername(request.Username);
-            user.UpdateAbout(request.About);
-
-            var result = await _unitOfWork.Commit(cancellationToken);
-            return result.IsSucceeded;
+            var user = await request.LoadUser(_userWriteRepository, cancellationToken);
+            
+            return await user
+                .UpdateDomain(request)
+                .Commit(_unitOfWork, cancellationToken);
         }
     }
 }

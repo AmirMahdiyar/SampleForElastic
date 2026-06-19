@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using SampleForElastic.Domain.Base;
+using SampleForElastic.Domain.Enums;
 using SampleForElastic.Domain.Models.Outbox;
 using System.Text.Json;
 
@@ -10,10 +11,14 @@ namespace SampleForElastic.Infraustructure.Interceptors
         public override async ValueTask<InterceptionResult<int>> SavingChangesAsync(DbContextEventData eventData, InterceptionResult<int> result, CancellationToken cancellationToken = default)
         {
             var context = eventData.Context;
+            if (context == null)
+            {
+                return await base.SavingChangesAsync(eventData, result, cancellationToken);
+            }
 
-            var outboxMessages = context!
+            var outboxMessages = context
                 .ChangeTracker
-                .Entries<DomainEventBase<EventBase>>()
+                .Entries<IAggregateRoot>()
                 .Select(x => x.Entity)
                 .ToList()
                 .SelectMany(x =>
@@ -27,7 +32,7 @@ namespace SampleForElastic.Infraustructure.Interceptors
                     EventId = Guid.NewGuid(),
                     EventType = x.GetType().AssemblyQualifiedName ?? x.GetType().Name,
                     Payload = JsonSerializer.Serialize(x, x.GetType()),
-                    Status = Domain.Enums.OutboxStatus.Pending,
+                    Status = OutboxStatus.Pending,
                 })
                 .ToList();
 

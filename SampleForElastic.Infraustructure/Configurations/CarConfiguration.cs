@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using SampleForElastic.Domain.Enums;
 using SampleForElastic.Domain.Models.UserAggregate;
@@ -64,8 +64,6 @@ namespace SampleForElastic.Infraustructure.Configurations
 
                 builder.HasIndex(x => x.PostedAt)
                     .HasDatabaseName("IX_Cars_PostedAt");
-
-                builder.Ignore(x => x.Events);
             }
         }
     }

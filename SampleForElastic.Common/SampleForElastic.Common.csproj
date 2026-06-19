@@ -12,7 +12,6 @@
 
   <ItemGroup>
     <PackageReference Include="Elastic.Clients.Elasticsearch" Version="8.15.6" />
-    <ProjectReference Include="..\SampleForElastic.Infraustructure\SampleForElastic.Infraustructure.csproj" />
   </ItemGroup>
 
 </Project>
